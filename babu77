@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Demo Game Hub (Fake Coins)</title>
+  <style>
+    :root{
+      --blue:#1565c0; --light:#f6f9fc; --card:#ffffff;
+      font-family: "Noto Sans", Arial, sans-serif;
+    }
+    body{margin:0;background:linear-gradient(#e9f2ff,#ffffff);color:#102a43;}
+    header{background:var(--blue);color:white;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;}
+    .brand{display:flex;align-items:center;gap:12px}
+    .brand img{width:36px;height:36px;border-radius:6px}
+    .brand h1{font-size:18px;margin:0}
+    .top-stats{display:flex;gap:12px;align-items:center}
+    .stat{background:rgba(255,255,255,0.12);padding:8px 12px;border-radius:8px;font-weight:600}
+    main{max-width:1100px;margin:18px auto;padding:0 12px}
+    .wallet{display:flex;gap:12px;align-items:center;margin-bottom:14px}
+    .balance{background:var(--card);padding:12px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.06);min-width:220px}
+    .btn{background:var(--blue);color:white;padding:8px 12px;border-radius:8px;border:0;cursor:pointer}
+    .btn.secondary{background:#2d6cdf50;color:white}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+    .card{background:var(--card);border-radius:12px;padding:10px;text-align:center;box-shadow:0 4px 14px rgba(16,42,67,0.08)}
+    .card img{width:100%;height:110px;object-fit:cover;border-radius:8px;margin-bottom:8px}
+    .card h3{margin:6px 0 4px;font-size:16px}
+    footer{margin:28px 0;text-align:center;color:#475569}
+    /* modal */
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,6,23,0.5);z-index:40}
+    .modal.show{display:flex}
+    .modal-inner{background:white;border-radius:12px;padding:18px;max-width:720px;width:94%}
+    .row{display:flex;gap:12px;align-items:center}
+    .spacer{flex:1}
+    .slot-reel{display:flex;gap:8px;justify-content:center;margin:14px 0}
+    .reel{width:72px;height:72px;border-radius:10px;background:#f3f7fb;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700}
+    .log{background:#f8fafc;border-radius:8px;padding:8px;height:86px;overflow:auto;font-size:13px}
+    .controls{display:flex;gap:8px;align-items:center;margin-top:12px}
+    input[type=number]{padding:8px;border-radius:8px;border:1px solid #dfe7ef;width:110px}
+    .jackpot{font-weight:800;letter-spacing:1px}
+    .small{font-size:13px;color:#546a7a}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <img src="https://i.imgur.com/6YVQX2U.png" alt="logo">
+      <div>
+        <h1>Demo Playhouse</h1>
+        <div class="small">Fake-coins playground — No real money</div>
+      </div>
+    </div>
+    <div class="top-stats">
+      <div class="stat">Jackpot <span id="jackpot" class="jackpot">80,102,468.5</span></div>
+      <button class="btn" id="loginBtn">লগইন/রেজিস্টার</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="wallet">
+      <div class="balance">
+        <div class="row">
+          <div>
+            <div class="small">তোমার ব্যালান্স</div>
+            <div style="font-size:22px;font-weight:800" id="balanceText">৳ 500</div>
+            <div class="small">Fake Coins</div>
+          </div>
+          <div class="spacer"></div>
+          <div>
+            <button class="btn" id="addCoins">+Add 100</button>
+            <button class="btn secondary" id="resetCoins">Reset</button>
+          </div>
+        </div>
+      </div>
+      <div style="flex:1"></div>
+      <div class="small">Tip: Local storage এ ব্যালান্স সেভ হয়।</div>
+    </div>
+
+    <h2>গেমসমূহ</h2>
+    <div class="grid">
+      <div class="card">
+        <img src="https://i.imgur.com/3ZQ3ZxA.jpg" alt="">
+        <h3>সুপার এস (Slot)</h3>
+        <div class="small">Cost: 10</div>
+        <div style="margin-top:8px">
+          <button class="btn" data-game="slot">Play</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <img src="https://i.imgur.com/Nq5H2gK.jpg" alt="">
+        <h3>এভিয়েটর (Multiplier)</h3>
+        <div class="small">Cost per round: flexible</div>
+        <div style="margin-top:8px">
+          <button class="btn" data-game="aviator">Play</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <img src="https://i.imgur.com/ll2X5mZ.png" alt="">
+        <h3>ফরচুন জেমস (Coming)</h3>
+        <div class="small">Soon...</div>
+        <div style="margin-top:8px">
+          <button class="btn secondary" disabled>Coming</button>
+        </div>
+      </div>
+    </div>
+
+    <footer>Demo site — কোনো বাস্তব আর্থিক লেনদেন নয়।</footer>
+  </main>
+
+  <!-- Modal: Slot -->
+  <div class="modal" id="modalSlot">
+    <div class="modal-inner">
+      <div class="row">
+        <h3>সুপার এস - Slot</h3>
+        <div class="spacer"></div>
+        <button class="btn secondary" onclick="closeModal('modalSlot')">Close</button>
+      </div>
+
+      <div style="margin-top:10px" class="small">বাজেট: 10 coins per spin (ডিফল্ট)</div>
+      <div class="slot-reel" id="slotReels">
+        <div class="reel" id="r0">🍒</div>
+        <div class="reel" id="r1">🍋</div>
+        <div class="reel" id="r2">🍊</div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Stake:</label>
+          <input type="number" id="slotStake" value="10" min="1">
+        </div>
+        <div class="spacer"></div>
+        <div>
+          <button class="btn" id="spinBtn">Spin</button>
+        </div>
+      </div>
+
+      <div style="margin-top:10px" class="log" id="slotLog"></div>
+    </div>
+  </div>
+
+  <!-- Modal: Aviator -->
+  <div class="modal" id="modalAviator">
+    <div class="modal-inner">
+      <div class="row">
+        <h3>এভিয়েটর - Multiplier</h3>
+        <div class="spacer"></div>
+        <button class="btn secondary" onclick="closeModal('modalAviator')">Close</button>
+      </div>
+
+      <div style="margin-top:10px" class="small">বেট রাখো → Start → multiplier বাড়বে → যখন চাই “Cash Out” করো</div>
+
+      <div style="margin-top:12px" class="row">
+        <div>
+          <label>Stake:</label>
+          <input type="number" id="aviStake" value="20" min="1">
+        </div>
+        <div class="spacer"></div>
+        <div>
+          <button class="btn" id="startAviBtn">Start Round</button>
+          <button class="btn secondary" id="cashOutBtn" disabled>Cash Out</button>
+        </div>
+      </div>
+
+      <div style="margin-top:18px" class="row">
+        <div style="font-size:28px;font-weight:800" id="multiplier">1.00x</div>
+        <div class="spacer"></div>
+        <div class="small" id="aviStatus">Waiting</div>
+      </div>
+
+      <div style="margin-top:12px" class="log" id="aviLog"></div>
+    </div>
+  </div>
+
+<script>
+  // --- Utility & state ---
+  const STORAGE_KEY = 'demo_balance_v1';
+  function getBalance(){ return Number(localStorage.getItem(STORAGE_KEY) || 500); }
+  function setBalance(v){ localStorage.setItem(STORAGE_KEY, String(Math.max(0, Math.round(v*100)/100))); renderBalance(); }
+  function renderBalance(){ document.getElementById('balanceText').innerText = '৳ ' + getBalance(); }
+
+  // init
+  renderBalance();
+  // jackpot animation (fake increment)
+  const jackpotEl = document.getElementById('jackpot');
+  let jackpot = 80102468.5;
+  setInterval(()=>{
+    jackpot += Math.floor(Math.random()*50); // small increase
+    jackpotEl.innerText = jackpot.toLocaleString('en-US');
+  }, 1500);
+
+  // add/reset coins
+  document.getElementById('addCoins').addEventListener('click', ()=> {
+    setBalance(getBalance() + 100);
+    alert('Added 100 fake coins');
+  });
+  document.getElementById('resetCoins').addEventListener('click', ()=> {
+    if(confirm('Reset balance to 500?')){ setBalance(500); }
+  });
+
+  // open game modals
+  document.querySelectorAll('[data-game]').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      const g = e.target.dataset.game;
+      if(g==='slot') openModal('modalSlot');
+      if(g==='aviator') openModal('modalAviator');
+    });
+  });
+
+  function openModal(id){
+    document.getElementById(id).classList.add('show');
+    // clear logs
+    if(id==='modalSlot') document.getElementById('slotLog').innerHTML = '';
+    if(id==='modalAviator') {
+      document.getElementById('aviLog').innerHTML = '';
+      resetAviator();
+    }
+  }
+  function closeModal(id){
+    document.getElementById(id).classList.remove('show');
+    // stop aviator if active
+    if(id==='modalAviator') resetAviator();
+  }
+
+  // ---------------- Slot Game ----------------
+  const symbols = ['🍒','🍋','🍊','🔔','⭐','7️⃣'];
+  const spinBtn = document.getElementById('spinBtn');
+  spinBtn.addEventListener('click', ()=>{
+    const stake = Math.max(1, Number(document.getElementById('slotStake').value || 10));
+    if(getBalance() < stake){ alert('ব্যালান্স কমছে'); return; }
+    // pay stake
+    setBalance(getBalance() - stake);
+
+    // animate reels
+    const reels = [document.getElementById('r0'),document.getElementById('r1'),document.getElementById('r2')];
+    let results = [];
+    reels.forEach((r,i)=>{
+      const spins = 8 + i*3;
+      let t=0;
+      const iv = setInterval(()=>{
+        r.innerText = symbols[Math.floor(Math.random()*symbols.length)];
+        t++;
+        if(t>spins){ clearInterval(iv); results[i]=r.innerText; if(results.filter(Boolean).length===3) finalizeSlot(results, stake); }
+      }, 80 + i*30);
+    });
+  });
+
+  function finalizeSlot(results, stake){
+    const log = document.getElementById('slotLog');
+    // determine payout:
+    // three same => 10x, two same => 2x, special 7 => three 7 => 50x
+    let payout = 0;
+    if(results[0]===results[1] && results[1]===results[2]){
+      payout = stake * (results[0]==='7️⃣' ? 50 : 10);
+      log.innerHTML = `<div>তুমি পেয়েছো 🎉 3x ${results[0]} — Payout: ${payout}</div>` + log.innerHTML;
+    } else if(results[0]===results[1] || results[0]===results[2] || results[1]===results[2]){
+      payout = stake * 2;
+      log.innerHTML = `<div>দুটি মিলেছ — Payout: ${payout}</div>` + log.innerHTML;
+    } else {
+      payout = 0;
+      log.innerHTML = `<div>কিছু মেলা নাই — হারানো ${stake}</div>` + log.innerHTML;
+    }
+    if(payout>0) setBalance(getBalance() + payout);
+  }
+
+  // ---------------- Aviator (Multiplier) ----------------
+  let aviInterval = null;
+  let currentMult = 1.0;
+  let crashAt = null;
+  let aviRunning = false;
+  let aviStake = 0;
+  const multEl = document.getElementById('multiplier');
+  const aviStatus = document.getElementById('aviStatus');
+
+  document.getElementById('startAviBtn').addEventListener('click', startAviator);
+  document.getElementById('cashOutBtn').addEventListener('click', cashOutAviator);
+
+  function startAviator(){
+    if(aviRunning) return;
+    aviStake = Math.max(1, Number(document.getElementById('aviStake').value || 10));
+    if(getBalance() < aviStake){ alert('ব্যালান্স কম আছে'); return; }
+    // pay stake upfront
+    setBalance(getBalance() - aviStake);
+    // set a random crash point (>=1.0). We use an exponential-like distribution for variability.
+    // ensure some rounds crash early and some go long
+    const rand = Math.random();
+    crashAt = Math.max(1.05, Math.round((1.0 + (-Math.log(rand))*0.5)*100)/100); // ~ variable
+    currentMult = 1.00;
+    multEl.innerText = currentMult.toFixed(2) + 'x';
+    aviStatus.innerText = 'Running';
+    aviRunning = true;
+    document.getElementById('cashOutBtn').disabled = false;
+    document.getElementById('startAviBtn').disabled = true;
+
+    // increase multiplier gradually
+    aviInterval = setInterval(()=>{
+      // growth speed increases with multiplier for excitement
+      currentMult = Math.round((currentMult + 0.01 + currentMult*0.01)*100)/100;
+      multEl.innerText = currentMult.toFixed(2) + 'x';
+      if(currentMult >= crashAt){
+        // crash
+        clearInterval(aviInterval);
+        aviRunning = false;
+        aviStatus.innerText = 'Crashed at ' + crashAt.toFixed(2) + 'x';
+        document.getElementById('cashOutBtn').disabled = true;
+        document.getElementById('startAviBtn').disabled = false;
+        // stake was already removed; no payout
+        appendAviLog(`Crash! No cash out. Stake lost: ${aviStake}`);
+      } else {
+        // live update log occasionally
+        if(Math.random() < 0.08) appendAviLog(`Live ${currentMult.toFixed(2)}x`);
+      }
+    }, 80);
+  }
+
+  function cashOutAviator(){
+    if(!aviRunning) return;
+    clearInterval(aviInterval);
+    aviRunning = false;
+    const payout = Math.round((aviStake * currentMult)*100)/100;
+    setBalance(getBalance() + payout);
+    aviStatus.innerText = 'Cashed out @ ' + currentMult.toFixed(2) + 'x — Payout: ' + payout;
+    appendAviLog(`Cashed out ${payout} (bet ${aviStake} @ ${currentMult.toFixed(2)}x)`);
+    document.getElementById('cashOutBtn').disabled = true;
+    document.getElementById('startAviBtn').disabled = false;
+  }
+
+  function appendAviLog(text){
+    const d = document.getElementById('aviLog');
+    const now = new Date().toLocaleTimeString();
+    d.innerHTML = `<div>[${now}] ${text}</div>` + d.innerHTML;
+  }
+
+  function resetAviator(){
+    if(aviInterval) clearInterval(aviInterval);
+    aviInterval = null; aviRunning = false; currentMult = 1.0; crashAt = null;
+    multEl.innerText = '1.00x'; aviStatus.innerText = 'Waiting';
+    document.getElementById('cashOutBtn').disabled = true;
+    document.getElementById('startAviBtn').disabled = false;
+  }
+
+  // On first load set default balance if not set
+  if(localStorage.getItem(STORAGE_KEY)===null) setBalance(500);
+</script>
+</body>
+</html>
